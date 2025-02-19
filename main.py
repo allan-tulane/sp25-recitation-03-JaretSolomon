@@ -47,20 +47,50 @@ def pad(x,y):
 def quadratic_multiply(x, y):
     # this just converts the result from a BinaryNumber to a regular int
     return _quadratic_multiply(x,y).decimal_val
-
 def _quadratic_multiply(x, y):
-    ### TODO
-    pass
-    ###
+    xvec = x.binary_vec
+    yvec = y.binary_vec
+    x, y = binary2int(pad(xvec, yvec)[0]), binary2int(pad(xvec, yvec)[1])
+    
+    if x.decimal_val == 1 and y.decimal_val == 1:
+        return BinaryNumber(int(x.binary_vec[0]) * int(y.binary_vec[0]))
+
+    
+    x_left, x_right = split_number(x.binary_vec)
+    y_left, y_right = split_number(y.binary_vec)
+
+    
+    left = _quadratic_multiply(x_left, y_left)
+    right = _quadratic_multiply(x_right, y_right)
+    middle1 = _quadratic_multiply(x_left, y_right)
+    middle2 = _quadratic_multiply(x_right, y_left)
+    
+    result = bit_shift(left, len(x.binary_vec))  # 2^n * left
+    middle_sum = BinaryNumber(middle1.decimal_val + middle2.decimal_val)
+    result = BinaryNumber(result.decimal_val + bit_shift(middle_sum, len(x.binary_vec) // 2).decimal_val)
+    result = BinaryNumber(result.decimal_val + right.decimal_val)
+    
+    return result
+
+
+
+
+    
+
+
+
+   
 
 
     
     
-def test_quadratic_multiply(x, y, f):
+def measure_quadratic_multiply(x, y, f):
     start = time.time()
-    # multiply two numbers x, y using function f
-    
-    return (time.time() - start)*1000
+    result = f(BinaryNumber(x), BinaryNumber(y))
+    end = time.time()
+    return (end - start) * 1000, result
+
+
 
 
     
